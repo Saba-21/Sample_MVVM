@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Sample_MVVM</string>
+
+    <string name="tv_username_text" tools:ignore="ExtraTranslation">username</string>
+
+    <string name="but_search_text">search</string>
+
+    <string name="but_nav_screen_result_text">go to result screen</string>
+
+    <string name="but_nav_screen_add_text">go to add screen</string>
+</resources>
