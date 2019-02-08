@@ -1,6 +1,5 @@
 package com.saba.sample_mvvm.presentation.add
 
-import android.util.Log
 import com.saba.sample_mvvm.base.extensions.toLiveData
 import com.saba.sample_mvvm.base.structure.BaseViewModel
 import com.saba.sample_mvvm.domain.dataModels.apiModels.RepoModel
@@ -24,7 +23,19 @@ class AddingViewModel(
                 .subscribe({
                     onSearchResultReceived.onNext(it)
                 }, {
-                    Log.e("", "")
+                    onSearchResultReceived.onNext(emptyList())
+                })
+        )
+    }
+
+    fun onSaveClicked(repoModel: RepoModel) {
+        addDisposables(
+            saveLocalRepoUseCase
+                .createObservable(repoModel)
+                .subscribe({
+
+                }, {
+
                 })
         )
     }
