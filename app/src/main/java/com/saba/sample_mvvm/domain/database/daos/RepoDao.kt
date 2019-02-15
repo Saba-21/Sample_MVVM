@@ -5,15 +5,9 @@ import com.saba.sample_mvvm.domain.dataModels.dbModels.RepoDbModel
 import io.reactivex.Flowable
 
 @Dao
-interface RepoDao {
+interface RepoDao : BaseDao<RepoDbModel> {
 
     @Query("Select * From repository")
     fun select(): Flowable<List<RepoDbModel>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(repo: RepoDbModel)
-
-    @Delete
-    fun drop(repo: RepoDbModel)
 
 }

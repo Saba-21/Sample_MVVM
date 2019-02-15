@@ -3,6 +3,7 @@ package com.saba.sample_mvvm.presentation.add
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.View
 import androidx.navigation.NavController
 import com.saba.sample_mvvm.R
@@ -23,9 +24,6 @@ class AddingFragment : BaseFragment() {
         rvGlobalRepos.adapter = adapter
         rvGlobalRepos.layoutManager = LinearLayoutManager(context)
 
-        viewModel.onSearchResultReceived().observe(this, Observer {
-            adapter.setData(it ?: emptyList())
-        })
         adapter.setClickListener {
             viewModel.onSaveClicked(it)
         }
@@ -35,6 +33,24 @@ class AddingFragment : BaseFragment() {
         butDrawResult.setOnClickListener {
             navigationController.navigate(AddingFragmentDirections.actionAddingFragmentToResultFragment())
         }
+
+        viewModel.getViewStateObservable().observe(this, Observer {
+            when (it) {
+                is AddingViewState.DrawRepoList -> {
+                    adapter.setData(it.repoList)
+                }
+                is AddingViewState.DrawSaveItem -> {
+                    Log.e("DrawSaveItem", "...")
+                }
+                is AddingViewState.Loading -> {
+                    Log.e("Loading", "...")
+                }
+                is AddingViewState.Error -> {
+                    Log.e("Error", "...")
+                }
+
+            }
+        })
     }
 
 }

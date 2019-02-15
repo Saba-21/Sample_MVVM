@@ -11,10 +11,7 @@ import com.saba.sample_mvvm.domain.dataProviders.local.LocalDataProviderImpl
 import com.saba.sample_mvvm.domain.database.RepoDatabase
 import com.saba.sample_mvvm.domain.repository.Repository
 import com.saba.sample_mvvm.domain.repository.RepositoryImpl
-import com.saba.sample_mvvm.domain.useCases.DropLocalReposUseCase
-import com.saba.sample_mvvm.domain.useCases.GetGlobalReposUseCase
-import com.saba.sample_mvvm.domain.useCases.GetLocalReposUseCase
-import com.saba.sample_mvvm.domain.useCases.SaveLocalRepoUseCase
+import com.saba.sample_mvvm.domain.useCases.*
 import com.saba.sample_mvvm.presentation.add.AddingViewModel
 import com.saba.sample_mvvm.presentation.get.ResultViewModel
 import com.saba.sample_mvvm.presentation.main.MainViewModel
@@ -89,6 +86,9 @@ object AppModule {
         }
         factory {
             SaveLocalRepoUseCase(get())
+        }
+        factory {
+            SelectUserWithReposUseCase(get())
         }
 
         viewModel<AddingViewModel>()

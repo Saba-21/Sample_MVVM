@@ -4,6 +4,7 @@ import com.saba.sample_mvvm.base.extensions.async
 import com.saba.sample_mvvm.domain.dataProviders.global.GlobalDataProvider
 import com.saba.sample_mvvm.domain.dataProviders.local.LocalDataProvider
 import com.saba.sample_mvvm.domain.dataModels.apiModels.RepoModel
+import com.saba.sample_mvvm.domain.dataModels.dbModels.UserWithRepos
 import io.reactivex.Observable
 
 class RepositoryImpl(
@@ -21,6 +22,9 @@ class RepositoryImpl(
             Observable<List<RepoModel>> = localDataProvider.select().async()
 
     override fun getGlobalRepos(userName: String):
-            Observable<List<RepoModel>> = globalDataProvider.getStarredRepos(userName).async()
+            Observable<List<RepoModel>> = globalDataProvider.getStarredRepos(userName).toObservable().async()
+
+    override fun selectOwnerWithRepos():
+            Observable<List<UserWithRepos>> = localDataProvider.selectOwnerWithRepos()
 
 }

@@ -24,12 +24,6 @@
             android:label="fragment_result"
             tools:layout="@layout/fragment_result">
 
-        <action
-                android:id="@+id/action_resultFragment_to_addingFragment"
-                app:destination="@id/addingFragment"
-                app:popUpTo="@id/addingFragment"
-                app:popUpToInclusive="true"/>
-
     </fragment>
 
 </navigation>

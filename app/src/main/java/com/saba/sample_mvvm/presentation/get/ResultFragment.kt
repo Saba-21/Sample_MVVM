@@ -3,6 +3,7 @@ package com.saba.sample_mvvm.presentation.get
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.View
 import androidx.navigation.NavController
 import com.saba.sample_mvvm.R
@@ -23,15 +24,31 @@ class ResultFragment : BaseFragment() {
         rvLocalRepos.adapter = adapter
         rvLocalRepos.layoutManager = LinearLayoutManager(context)
 
-        viewModel.onLocalReposReceived().observe(this, Observer {
-            adapter.setData(it ?: emptyList())
-        })
         adapter.setClickListener {
             viewModel.onDeleteClicked(it)
         }
         butDrawAdding.setOnClickListener {
-            navigationController.navigate(ResultFragmentDirections.actionResultFragmentToAddingFragment())
+            activity?.onBackPressed()
         }
+
+        viewModel.getViewStateObservable().observe(this, Observer {
+            when (it) {
+                is ResultViewState.DrawRepoList -> {
+                    adapter.setData(it.repoList)
+                }
+                is ResultViewState.DrawDropItem -> {
+                    Log.e("DrawDropItem", "...")
+                }
+                is ResultViewState.Loading -> {
+                    Log.e("Loading", "...")
+                }
+                is ResultViewState.Error -> {
+                    Log.e("Error", "...")
+                }
+
+            }
+        })
+
     }
 
 }
