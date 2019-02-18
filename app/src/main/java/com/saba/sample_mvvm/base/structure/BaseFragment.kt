@@ -13,12 +13,12 @@ import org.koin.core.parameter.parametersOf
 
 abstract class BaseFragment : Fragment() {
 
-    protected abstract fun renderView(view: View?, savedInstanceState: Bundle?, navigationController: NavController)
+    protected abstract fun onDraw(view: View?, savedInstanceState: Bundle?, navigationController: NavController)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        renderView(
+        onDraw(
             view,
             savedInstanceState,
             get(scope = getScope(ACTIVITY)) {

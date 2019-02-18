@@ -18,7 +18,7 @@ class ResultFragment : BaseFragment() {
 
     private val viewModel: ResultViewModel by viewModel()
 
-    override fun renderView(view: View?, savedInstanceState: Bundle?, navigationController: NavController) {
+    override fun onDraw(view: View?, savedInstanceState: Bundle?, navigationController: NavController) {
 
         val adapter = RepoAdapter()
         rvLocalRepos.adapter = adapter

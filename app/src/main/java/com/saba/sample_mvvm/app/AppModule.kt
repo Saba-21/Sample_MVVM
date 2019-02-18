@@ -45,7 +45,9 @@ object AppModule {
             HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY) as Interceptor
         }
         single {
-            OkHttpClient.Builder().addInterceptor(get()).build()
+            OkHttpClient.Builder()
+//                .addInterceptor(get())
+                .build()
         }
         single {
             Retrofit

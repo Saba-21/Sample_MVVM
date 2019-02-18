@@ -5,14 +5,14 @@ import android.os.Bundle
 
 abstract class BaseActivity : AppCompatActivity() {
 
-    protected abstract fun renderView(savedInstanceState: Bundle?)
+    protected abstract fun onDraw(savedInstanceState: Bundle?)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val layoutResourceId = javaClass.getAnnotation(LayoutResourceId::class.java)
         if (layoutResourceId != null)
             setContentView(layoutResourceId.value)
-        renderView(savedInstanceState)
+        onDraw(savedInstanceState)
     }
 
 }

@@ -18,7 +18,7 @@ class AddingFragment : BaseFragment() {
 
     private val viewModel: AddingViewModel by viewModel()
 
-    override fun renderView(view: View?, savedInstanceState: Bundle?, navigationController: NavController) {
+    override fun onDraw(view: View?, savedInstanceState: Bundle?, navigationController: NavController) {
 
         val adapter = RepoAdapter()
         rvGlobalRepos.adapter = adapter

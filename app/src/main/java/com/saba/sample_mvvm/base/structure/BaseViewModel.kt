@@ -11,7 +11,8 @@ open class BaseViewModel<ViewState> : ViewModel() {
 
     protected fun addDisposables(vararg disposable: Disposable) {
         disposable.forEach {
-            compositeDisposable.addAll(it)
+            compositeDisposable.remove(it)
+            compositeDisposable.add(it)
         }
     }
 

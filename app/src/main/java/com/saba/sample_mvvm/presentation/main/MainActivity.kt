@@ -11,7 +11,7 @@ import org.koin.android.scope.ext.android.getOrCreateScope
 @LayoutResourceId(R.layout.activity_main)
 class MainActivity : BaseActivity() {
 
-    override fun renderView(savedInstanceState: Bundle?) {
+    override fun onDraw(savedInstanceState: Bundle?) {
         bindScope(getOrCreateScope(ACTIVITY))
     }
 
