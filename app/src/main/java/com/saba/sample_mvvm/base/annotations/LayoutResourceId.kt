@@ -1,4 +1,4 @@
-package com.saba.sample_mvvm.base.structure
+package com.saba.sample_mvvm.base.annotations
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

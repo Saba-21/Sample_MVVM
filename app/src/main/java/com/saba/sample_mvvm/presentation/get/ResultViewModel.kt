@@ -29,7 +29,7 @@ class ResultViewModel(
             dropLocalReposUseCase
                 .createObservable(repoModel)
                 .subscribe({
-                    postState(ResultViewState.DrawDropItem)
+
                 }, {
                     postState(ResultViewState.Error(it.message ?: ""))
                 })

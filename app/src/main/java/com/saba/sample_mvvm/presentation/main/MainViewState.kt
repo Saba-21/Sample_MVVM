@@ -1,10 +1,5 @@
 package com.saba.sample_mvvm.presentation.main
 
+import com.saba.sample_mvvm.base.structure.BaseViewState
 
-sealed class MainViewState {
-
-    data class Error(val message: String) : MainViewState()
-    object Loading : MainViewState()
-    object Done : MainViewState()
-
-}
+sealed class MainViewState(override val isStateAware: Boolean = false) : BaseViewState

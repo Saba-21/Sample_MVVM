@@ -29,7 +29,7 @@ class AddingViewModel(
             saveLocalRepoUseCase
                 .createObservable(repoModel)
                 .subscribe({
-                    postState(AddingViewState.DrawSaveItem)
+
                 }, {
                     postState(AddingViewState.Error(it.message ?: ""))
                 })

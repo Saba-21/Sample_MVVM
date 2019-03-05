@@ -5,7 +5,7 @@ import android.arch.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-open class BaseViewModel<ViewState> : ViewModel() {
+open class BaseViewModel<ViewState : BaseViewState> : ViewModel() {
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
@@ -16,17 +16,25 @@ open class BaseViewModel<ViewState> : ViewModel() {
         }
     }
 
-    private val viewStateObservable = MutableLiveData<ViewState>()
-
-    fun getViewStateObservable() = viewStateObservable
-
-    protected fun postState(viewState: ViewState) {
-        viewStateObservable.postValue(viewState)
-    }
-
     override fun onCleared() {
         compositeDisposable.dispose()
         compositeDisposable.clear()
         super.onCleared()
     }
+
+    private val stateFullObservable = MutableLiveData<ViewState>()
+
+    private val stateAwareObservable = MutableLiveData<ViewState>()
+
+    fun getStateFullObservable() = stateFullObservable
+
+    fun getStateAwareObservable() = stateAwareObservable
+
+    protected fun postState(viewState: ViewState) {
+        if (viewState.isStateAware)
+            stateAwareObservable.postValue(viewState)
+        else
+            stateFullObservable.postValue(viewState)
+    }
+
 }
