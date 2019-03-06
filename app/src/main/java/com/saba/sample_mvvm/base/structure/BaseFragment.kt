@@ -7,33 +7,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import com.saba.sample_mvvm.base.annotations.LayoutResourceId
-import com.saba.sample_mvvm.custom.ACTIVITY
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import org.koin.android.ext.android.get
 import org.koin.android.scope.ext.android.getScope
 import org.koin.core.parameter.parametersOf
 
 abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
 
-    lateinit var baseViewModel: BaseViewModel<ViewState>
+    private lateinit var baseViewModel: BaseViewModel<ViewState>
+    private lateinit var compositeDisposable: CompositeDisposable
+    private var navigationController: NavController? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        retainInstance = true
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onDraw(
-            view,
-            savedInstanceState,
-            get(scope = getScope(ACTIVITY)) {
-                parametersOf(activity!!)
-            })
+        navigationController = get(scope = getScope(ACTIVITY)) {
+            parametersOf(activity!!)
+        }
+
+        onDraw(view, savedInstanceState)
 
         baseViewModel = onPassViewModel()
 
-        baseViewModel.getStateFullObservable().observe(this, Observer {
-            it?.let { viewState ->
-                onRender(viewState)
-            }
-        })
+        compositeDisposable = CompositeDisposable()
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -41,6 +45,29 @@ abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
             }
         })
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        addStateFullSubject(
+            baseViewModel.getStateFullObservable().subscribe { viewState ->
+                onRender(viewState)
+            }
+        )
+    }
+
+    override fun onPause() {
+        clearStateFullSubjects()
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+        baseViewModel.getStateAwareObservable().removeObservers(this)
+        super.onDestroyView()
+    }
+
+    protected fun onNavigate(navDirections: NavDirections) {
+        navigationController?.navigate(navDirections)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -52,7 +79,17 @@ abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
         return view
     }
 
-    protected abstract fun onDraw(view: View?, savedInstanceState: Bundle?, navigationController: NavController)
+    private fun addStateFullSubject(disposable: Disposable) {
+        compositeDisposable.remove(disposable)
+        compositeDisposable.add(disposable)
+    }
+
+    private fun clearStateFullSubjects() {
+        compositeDisposable.dispose()
+        compositeDisposable.clear()
+    }
+
+    protected abstract fun onDraw(view: View?, savedInstanceState: Bundle?)
 
     protected abstract fun onPassViewModel(): BaseViewModel<ViewState>
 

@@ -11,29 +11,39 @@ class ResultViewModel(
 ) : BaseViewModel<ResultViewState>() {
 
     init {
-        postState(ResultViewState.Loading)
+        postState(ResultViewState.ShowLoading)
         addDisposables(
             getLocalReposUseCase
                 .createObservable()
-                .subscribe({
-                    postState(ResultViewState.DrawRepoList(it))
-                }, {
-                    postState(ResultViewState.Error(it.message ?: ""))
-                })
+                .map {
+                    ResultViewState.DrawRepoList(it) as ResultViewState
+                }.onErrorReturn {
+                    ResultViewState.Error(it.message ?: "")
+                }.subscribe {
+                    postState(it)
+                    postState(ResultViewState.HideLoading)
+                }
         )
     }
 
     fun onDeleteClicked(repoModel: RepoModel) {
-        postState(ResultViewState.Loading)
+        postState(ResultViewState.ShowLoading)
         addDisposables(
             dropLocalReposUseCase
                 .createObservable(repoModel)
-                .subscribe({
-
-                }, {
-                    postState(ResultViewState.Error(it.message ?: ""))
-                })
+                .map {
+                    ResultViewState.ShowItemDropped as ResultViewState
+                }.onErrorReturn {
+                    ResultViewState.Error(it.message ?: "")
+                }.subscribe {
+                    postState(it)
+                    postState(ResultViewState.HideLoading)
+                }
         )
+    }
+
+    fun onNavigateToAdding() {
+        postState(ResultViewState.NavigateToAdding)
     }
 
 }

@@ -11,29 +11,39 @@ class AddingViewModel(
 ) : BaseViewModel<AddingViewState>() {
 
     fun onSearchClicked(key: String) {
-        postState(AddingViewState.Loading)
+        postState(AddingViewState.ShowLoading)
         addDisposables(
             getGlobalReposUseCase
                 .createObservable(key)
-                .subscribe({
-                    postState(AddingViewState.DrawRepoList(it))
-                }, {
-                    postState(AddingViewState.Error(it.message ?: ""))
-                })
+                .map {
+                    AddingViewState.DrawRepoList(it) as AddingViewState
+                }.onErrorReturn {
+                    AddingViewState.Error(it.message ?: "")
+                }.subscribe {
+                    postState(it)
+                    postState(AddingViewState.HideLoading)
+                }
         )
     }
 
     fun onSaveClicked(repoModel: RepoModel) {
-        postState(AddingViewState.Loading)
+        postState(AddingViewState.ShowLoading)
         addDisposables(
             saveLocalRepoUseCase
                 .createObservable(repoModel)
-                .subscribe({
-
-                }, {
-                    postState(AddingViewState.Error(it.message ?: ""))
-                })
+                .map {
+                    AddingViewState.ShowItemAdded as AddingViewState
+                }.onErrorReturn {
+                    AddingViewState.Error(it.message ?: "")
+                }.subscribe {
+                    postState(it)
+                    postState(AddingViewState.HideLoading)
+                }
         )
+    }
+
+    fun onNavigateToResult() {
+        postState(AddingViewState.NavigateToResult)
     }
 
 }

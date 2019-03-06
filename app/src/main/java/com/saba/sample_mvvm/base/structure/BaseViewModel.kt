@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.PublishSubject
 
 open class BaseViewModel<ViewState : BaseViewState> : ViewModel() {
 
@@ -22,19 +23,19 @@ open class BaseViewModel<ViewState : BaseViewState> : ViewModel() {
         super.onCleared()
     }
 
-    private val stateFullObservable = MutableLiveData<ViewState>()
+    private val stateFullSubject = PublishSubject.create<ViewState>()
 
-    private val stateAwareObservable = MutableLiveData<ViewState>()
+    private val stateAwareSubject = MutableLiveData<ViewState>()
 
-    fun getStateFullObservable() = stateFullObservable
+    fun getStateFullObservable() = stateFullSubject
 
-    fun getStateAwareObservable() = stateAwareObservable
+    fun getStateAwareObservable() = stateAwareSubject
 
     protected fun postState(viewState: ViewState) {
         if (viewState.isStateAware)
-            stateAwareObservable.postValue(viewState)
+            stateAwareSubject.postValue(viewState)
         else
-            stateFullObservable.postValue(viewState)
+            stateFullSubject.onNext(viewState)
     }
 
 }

@@ -1,4 +1,4 @@
-package com.saba.sample_mvvm.adapters
+package com.saba.sample_mvvm.custom.adapters
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater

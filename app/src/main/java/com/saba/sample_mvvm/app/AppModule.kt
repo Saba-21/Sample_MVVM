@@ -4,7 +4,7 @@ import android.arch.persistence.room.Room
 import androidx.navigation.Navigation
 import com.google.gson.GsonBuilder
 import com.saba.sample_mvvm.R
-import com.saba.sample_mvvm.custom.ACTIVITY
+import com.saba.sample_mvvm.base.structure.ACTIVITY
 import com.saba.sample_mvvm.domain.dataProviders.global.GlobalDataProvider
 import com.saba.sample_mvvm.domain.dataProviders.local.LocalDataProvider
 import com.saba.sample_mvvm.domain.dataProviders.local.LocalDataProviderImpl
