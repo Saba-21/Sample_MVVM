@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        tools:context="com.saba.sample_mvvm.presentation.add.AddingFragment">
+        tools:context="com.saba.sampleMVVM.presentation.add.AddingFragment">
 
     <TextView
             android:id="@+id/tv_adding_error"

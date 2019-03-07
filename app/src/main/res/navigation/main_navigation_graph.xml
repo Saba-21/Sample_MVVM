@@ -8,7 +8,7 @@
 
     <fragment
             android:id="@+id/addingFragment"
-            android:name="com.saba.sample_mvvm.presentation.add.AddingFragment"
+            android:name="com.saba.sampleMVVM.presentation.add.AddingFragment"
             android:label="fragment_adding"
             tools:layout="@layout/fragment_adding">
 
@@ -20,7 +20,7 @@
 
     <fragment
             android:id="@+id/resultFragment"
-            android:name="com.saba.sample_mvvm.presentation.get.ResultFragment"
+            android:name="com.saba.sampleMVVM.presentation.get.ResultFragment"
             android:label="fragment_result"
             tools:layout="@layout/fragment_result">
 
