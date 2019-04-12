@@ -28,6 +28,12 @@ class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(R.layout.f
             is AddingViewState.Error -> {
                 Toast.makeText(context!!, viewState.message, Toast.LENGTH_SHORT).show()
             }
+            is AddingViewState.ShowLoading -> {
+                loader.visibility = View.VISIBLE
+            }
+            is AddingViewState.HideLoading -> {
+                loader.visibility = View.GONE
+            }
             is AddingViewState.NavigateToResult -> {
                 onNavigate(AddingFragmentDirections.actionAddingFragmentToResultFragment())
             }

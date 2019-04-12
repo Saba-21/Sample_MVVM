@@ -19,12 +19,16 @@ class AddingViewModel(
             }
 
             is AddingViewActon.SearchClick -> {
+                postState(AddingViewState.ShowLoading)
                 getGlobalReposUseCase
                     .createObservable(action.key)
                     .map {
                         AddingViewState.DrawRepoList(it) as AddingViewState
                     }.onErrorReturn {
                         AddingViewState.Error(it.message ?: "")
+                    }.map {
+                        postState(AddingViewState.HideLoading)
+                        it
                     }
             }
 

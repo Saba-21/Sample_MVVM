@@ -19,12 +19,16 @@ class ResultViewModel(
             }
 
             is ResultViewAction.LoadRepos -> {
+                postState(ResultViewState.ShowLoading)
                 getLocalReposUseCase
                     .createObservable()
                     .map {
                         ResultViewState.DrawRepoList(it) as ResultViewState
                     }.onErrorReturn {
                         ResultViewState.Error(it.message ?: "")
+                    }.map {
+                        postState(ResultViewState.HideLoading)
+                        it
                     }
             }
 

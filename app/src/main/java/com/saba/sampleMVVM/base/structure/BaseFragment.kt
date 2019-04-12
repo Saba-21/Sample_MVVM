@@ -38,9 +38,9 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
         compositeDisposable = CompositeDisposable()
         viewActionSubject = PublishSubject.create()
 
-        onDraw(view, savedInstanceState)
-
         baseViewModel.onSubscribeViewAction(viewActionSubject)
+
+        onDraw(view, savedInstanceState)
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->

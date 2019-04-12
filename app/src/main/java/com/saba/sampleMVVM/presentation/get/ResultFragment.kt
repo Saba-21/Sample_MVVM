@@ -28,6 +28,12 @@ class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(R.layout.
             is ResultViewState.Error -> {
                 Toast.makeText(context!!, viewState.message, Toast.LENGTH_SHORT).show()
             }
+            is ResultViewState.ShowLoading -> {
+                loader.visibility = View.VISIBLE
+            }
+            is ResultViewState.HideLoading -> {
+                loader.visibility = View.GONE
+            }
             is ResultViewState.NavigateToAdding -> {
                 activity?.onBackPressed()
             }

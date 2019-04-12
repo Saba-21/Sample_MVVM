@@ -22,9 +22,9 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
         compositeDisposable = CompositeDisposable()
         viewActionSubject = PublishSubject.create()
 
-        onDraw(savedInstanceState)
-
         baseViewModel.onSubscribeViewAction(viewActionSubject)
+
+        onDraw(savedInstanceState)
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -37,6 +37,7 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
                 onRender(viewState)
             }
         )
+
     }
 
     protected fun postAction(action: ViewAction) {
