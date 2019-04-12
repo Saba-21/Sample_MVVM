@@ -55,9 +55,10 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     }
 
     override fun onDestroy() {
-        baseViewModel.getStateAwareObservable().removeObservers(this)
         compositeDisposable.dispose()
         compositeDisposable.clear()
+        if (isFinishing)
+            baseViewModel.getStateAwareObservable().removeObservers(this)
         super.onDestroy()
     }
 

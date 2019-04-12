@@ -60,10 +60,14 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
     }
 
     override fun onDestroyView() {
-        baseViewModel.getStateAwareObservable().removeObservers(this)
         compositeDisposable.dispose()
         compositeDisposable.clear()
         super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        baseViewModel.getStateAwareObservable().removeObservers(this)
+        super.onDestroy()
     }
 
     protected fun onNavigate(navDirections: NavDirections) {
