@@ -1,49 +1,43 @@
 package com.saba.sampleMVVM.presentation.get
 
+import com.saba.sampleMVVM.base.extensions.makeObservable
 import com.saba.sampleMVVM.base.structure.BaseViewModel
-import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
 import com.saba.sampleMVVM.domain.useCases.DropLocalReposUseCase
 import com.saba.sampleMVVM.domain.useCases.GetLocalReposUseCase
+import io.reactivex.Observable
 
 class ResultViewModel(
-    getLocalReposUseCase: GetLocalReposUseCase,
+    private val getLocalReposUseCase: GetLocalReposUseCase,
     private val dropLocalReposUseCase: DropLocalReposUseCase
-) : BaseViewModel<ResultViewState>() {
+) : BaseViewModel<ResultViewState, ResultViewAction>() {
 
-    init {
-        postState(ResultViewState.ShowLoading)
-        addDisposables(
-            getLocalReposUseCase
-                .createObservable()
-                .map {
-                    ResultViewState.DrawRepoList(it) as ResultViewState
-                }.onErrorReturn {
-                    ResultViewState.Error(it.message ?: "")
-                }.subscribe {
-                    postState(it)
-                    postState(ResultViewState.HideLoading)
-                }
-        )
-    }
+    override fun onActionReceived(action: ResultViewAction): Observable<ResultViewState> {
+        return when (action) {
 
-    fun onDeleteClicked(repoModel: RepoModel) {
-        postState(ResultViewState.ShowLoading)
-        addDisposables(
-            dropLocalReposUseCase
-                .createObservable(repoModel)
-                .map {
-                    ResultViewState.ShowItemDropped as ResultViewState
-                }.onErrorReturn {
-                    ResultViewState.Error(it.message ?: "")
-                }.subscribe {
-                    postState(it)
-                    postState(ResultViewState.HideLoading)
-                }
-        )
-    }
+            is ResultViewAction.NavigateToResult -> {
+                ResultViewState.NavigateToAdding.makeObservable()
+            }
 
-    fun onNavigateToAdding() {
-        postState(ResultViewState.NavigateToAdding)
+            is ResultViewAction.LoadRepos -> {
+                getLocalReposUseCase
+                    .createObservable()
+                    .map {
+                        ResultViewState.DrawRepoList(it) as ResultViewState
+                    }.onErrorReturn {
+                        ResultViewState.Error(it.message ?: "")
+                    }
+            }
+
+            is ResultViewAction.DropClicked -> {
+                dropLocalReposUseCase
+                    .createObservable(action.repoModel)
+                    .map {
+                        ResultViewState.ShowItemDropped as ResultViewState
+                    }.onErrorReturn {
+                        ResultViewState.Error(it.message ?: "")
+                    }
+            }
+        }
     }
 
 }

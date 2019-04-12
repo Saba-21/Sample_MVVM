@@ -7,8 +7,6 @@ sealed class ResultViewState(override val isStateAware: Boolean = false) : BaseV
 
     data class DrawRepoList(val repoList: List<RepoModel>, override val isStateAware: Boolean = true) : ResultViewState()
     data class Error(val message: String) : ResultViewState()
-    object ShowLoading : ResultViewState()
-    object HideLoading: ResultViewState()
     object ShowItemDropped: ResultViewState()
     object NavigateToAdding: ResultViewState()
 

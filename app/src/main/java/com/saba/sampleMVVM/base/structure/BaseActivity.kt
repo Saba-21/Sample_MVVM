@@ -1,29 +1,30 @@
 package com.saba.sampleMVVM.base.structure
 
 import android.arch.lifecycle.Observer
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.saba.sampleMVVM.base.annotations.LayoutResourceId
+import android.support.v7.app.AppCompatActivity
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.PublishSubject
 
-abstract class BaseActivity<ViewState : BaseViewState> : AppCompatActivity() {
+abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewAction>(private val layoutId: Int) :
+    AppCompatActivity() {
 
-    private lateinit var baseViewModel: BaseViewModel<ViewState>
+    private lateinit var baseViewModel: BaseViewModel<ViewState, ViewAction>
     private lateinit var compositeDisposable: CompositeDisposable
+    private lateinit var viewActionSubject: PublishSubject<ViewAction>
     private var isViewResumed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val layoutResourceId = javaClass.getAnnotation(LayoutResourceId::class.java)
-        if (layoutResourceId != null)
-            setContentView(layoutResourceId.value)
+        setContentView(layoutId)
+
+        baseViewModel = onPassViewModel()
+        compositeDisposable = CompositeDisposable()
+        viewActionSubject = PublishSubject.create()
 
         onDraw(savedInstanceState)
 
-        baseViewModel = onPassViewModel()
-
-        compositeDisposable = CompositeDisposable()
+        baseViewModel.onSubscribeViewAction(viewActionSubject)
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -31,12 +32,15 @@ abstract class BaseActivity<ViewState : BaseViewState> : AppCompatActivity() {
             }
         })
 
-        addStateFullSubject(
+        compositeDisposable.add(
             baseViewModel.getStateFullObservable().filter { isViewResumed }.subscribe { viewState ->
                 onRender(viewState)
             }
         )
+    }
 
+    protected fun postAction(action: ViewAction) {
+        viewActionSubject.onNext(action)
     }
 
     override fun onResume() {
@@ -51,23 +55,14 @@ abstract class BaseActivity<ViewState : BaseViewState> : AppCompatActivity() {
 
     override fun onDestroy() {
         baseViewModel.getStateAwareObservable().removeObservers(this)
-        clearStateFullSubjects()
-        super.onDestroy()
-    }
-
-    private fun addStateFullSubject(disposable: Disposable) {
-        compositeDisposable.remove(disposable)
-        compositeDisposable.add(disposable)
-    }
-
-    private fun clearStateFullSubjects() {
         compositeDisposable.dispose()
         compositeDisposable.clear()
+        super.onDestroy()
     }
 
     protected abstract fun onDraw(savedInstanceState: Bundle?)
 
-    protected abstract fun onPassViewModel(): BaseViewModel<ViewState>
+    protected abstract fun onPassViewModel(): BaseViewModel<ViewState, ViewAction>
 
     protected abstract fun onRender(viewState: ViewState)
 

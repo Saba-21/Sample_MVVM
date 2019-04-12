@@ -9,15 +9,17 @@ import android.view.ViewGroup
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.PublishSubject
 import org.koin.android.ext.android.get
 import org.koin.android.scope.ext.android.getScope
 import org.koin.core.parameter.parametersOf
 
-abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
+abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewAction>(private val layoutId: Int) :
+    Fragment() {
 
-    private lateinit var baseViewModel: BaseViewModel<ViewState>
+    private lateinit var baseViewModel: BaseViewModel<ViewState, ViewAction>
     private lateinit var compositeDisposable: CompositeDisposable
+    private lateinit var viewActionSubject: PublishSubject<ViewAction>
     private var navigationController: NavController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,11 +34,13 @@ abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
             parametersOf(activity!!)
         }
 
+        baseViewModel = onPassViewModel()
+        compositeDisposable = CompositeDisposable()
+        viewActionSubject = PublishSubject.create()
+
         onDraw(view, savedInstanceState)
 
-        baseViewModel = onPassViewModel()
-
-        compositeDisposable = CompositeDisposable()
+        baseViewModel.onSubscribeViewAction(viewActionSubject)
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -44,17 +48,21 @@ abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
             }
         })
 
-        addStateFullSubject(
+        compositeDisposable.add(
             baseViewModel.getStateFullObservable().filter { isResumed }.subscribe { viewState ->
                 onRender(viewState)
             }
         )
+    }
 
+    protected fun postAction(action: ViewAction) {
+        viewActionSubject.onNext(action)
     }
 
     override fun onDestroyView() {
         baseViewModel.getStateAwareObservable().removeObservers(this)
-        clearStateFullSubjects()
+        compositeDisposable.dispose()
+        compositeDisposable.clear()
         super.onDestroyView()
     }
 
@@ -63,28 +71,12 @@ abstract class BaseFragment<ViewState : BaseViewState> : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        var view: View? = null
-        val layoutResourceId =
-            javaClass.getAnnotation(com.saba.sampleMVVM.base.annotations.LayoutResourceId::class.java)
-        if (layoutResourceId != null) {
-            view = inflater.inflate(layoutResourceId.value, container, false)
-        }
-        return view
-    }
-
-    private fun addStateFullSubject(disposable: Disposable) {
-        compositeDisposable.remove(disposable)
-        compositeDisposable.add(disposable)
-    }
-
-    private fun clearStateFullSubjects() {
-        compositeDisposable.dispose()
-        compositeDisposable.clear()
+        return inflater.inflate(layoutId, container, false)
     }
 
     protected abstract fun onDraw(view: View?, savedInstanceState: Bundle?)
 
-    protected abstract fun onPassViewModel(): BaseViewModel<ViewState>
+    protected abstract fun onPassViewModel(): BaseViewModel<ViewState, ViewAction>
 
     protected abstract fun onRender(viewState: ViewState)
 

@@ -5,13 +5,12 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Toast
 import com.saba.sampleMVVM.R
-import com.saba.sampleMVVM.custom.adapters.RepoAdapter
 import com.saba.sampleMVVM.base.structure.BaseFragment
+import com.saba.sampleMVVM.custom.adapters.RepoAdapter
 import kotlinx.android.synthetic.main.fragment_result.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-@com.saba.sampleMVVM.base.annotations.LayoutResourceId(R.layout.fragment_result)
-class ResultFragment : BaseFragment<ResultViewState>() {
+class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(R.layout.fragment_result) {
 
     private val viewModel: ResultViewModel by viewModel()
     private lateinit var adapter: RepoAdapter
@@ -22,12 +21,6 @@ class ResultFragment : BaseFragment<ResultViewState>() {
         when (viewState) {
             is ResultViewState.DrawRepoList -> {
                 adapter.setData(viewState.repoList)
-            }
-            is ResultViewState.ShowLoading -> {
-                loader.visibility = View.VISIBLE
-            }
-            is ResultViewState.HideLoading -> {
-                loader.visibility = View.GONE
             }
             is ResultViewState.ShowItemDropped -> {
                 Toast.makeText(context!!, "item dropped", Toast.LENGTH_SHORT).show()
@@ -46,11 +39,14 @@ class ResultFragment : BaseFragment<ResultViewState>() {
         rvLocalRepos.adapter = adapter
         rvLocalRepos.layoutManager = LinearLayoutManager(context)
 
+        postAction(ResultViewAction.LoadRepos)
+
+
         adapter.setClickListener {
-            viewModel.onDeleteClicked(it)
+            postAction(ResultViewAction.DropClicked(it))
         }
         butDrawAdding.setOnClickListener {
-            viewModel.onNavigateToAdding()
+            postAction(ResultViewAction.NavigateToResult)
         }
     }
 

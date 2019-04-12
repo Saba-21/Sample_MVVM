@@ -1,49 +1,43 @@
 package com.saba.sampleMVVM.presentation.add
 
+import com.saba.sampleMVVM.base.extensions.makeObservable
 import com.saba.sampleMVVM.base.structure.BaseViewModel
-import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
 import com.saba.sampleMVVM.domain.useCases.GetGlobalReposUseCase
 import com.saba.sampleMVVM.domain.useCases.SaveLocalRepoUseCase
+import io.reactivex.Observable
 
 class AddingViewModel(
     private val getGlobalReposUseCase: GetGlobalReposUseCase,
     private val saveLocalRepoUseCase: SaveLocalRepoUseCase
-) : BaseViewModel<AddingViewState>() {
+) : BaseViewModel<AddingViewState, AddingViewActon>() {
 
-    fun onSearchClicked(key: String) {
-        postState(AddingViewState.ShowLoading)
-        addDisposables(
-            getGlobalReposUseCase
-                .createObservable(key)
-                .map {
-                    AddingViewState.DrawRepoList(it) as AddingViewState
-                }.onErrorReturn {
-                    AddingViewState.Error(it.message ?: "")
-                }.subscribe {
-                    postState(it)
-                    postState(AddingViewState.HideLoading)
-                }
-        )
-    }
+    override fun onActionReceived(action: AddingViewActon): Observable<AddingViewState> {
+        return when (action) {
 
-    fun onSaveClicked(repoModel: RepoModel) {
-        postState(AddingViewState.ShowLoading)
-        addDisposables(
-            saveLocalRepoUseCase
-                .createObservable(repoModel)
-                .map {
-                    AddingViewState.ShowItemAdded as AddingViewState
-                }.onErrorReturn {
-                    AddingViewState.Error(it.message ?: "")
-                }.subscribe {
-                    postState(it)
-                    postState(AddingViewState.HideLoading)
-                }
-        )
-    }
+            is AddingViewActon.NavigateToResult -> {
+                AddingViewState.NavigateToResult.makeObservable()
+            }
 
-    fun onNavigateToResult() {
-        postState(AddingViewState.NavigateToResult)
+            is AddingViewActon.SearchClick -> {
+                getGlobalReposUseCase
+                    .createObservable(action.key)
+                    .map {
+                        AddingViewState.DrawRepoList(it) as AddingViewState
+                    }.onErrorReturn {
+                        AddingViewState.Error(it.message ?: "")
+                    }
+            }
+
+            is AddingViewActon.SaveClick -> {
+                saveLocalRepoUseCase
+                    .createObservable(action.repoModel)
+                    .map {
+                        AddingViewState.ShowItemAdded as AddingViewState
+                    }.onErrorReturn {
+                        AddingViewState.Error(it.message ?: "")
+                    }
+            }
+        }
     }
 
 }
