@@ -44,13 +44,13 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
-                onRender(viewState)
+                onStateReceived(viewState)
             }
         })
 
         compositeDisposable.add(
             baseViewModel.getStateFullObservable().filter { isResumed }.subscribe { viewState ->
-                onRender(viewState)
+                onStateReceived(viewState)
             }
         )
     }
@@ -82,6 +82,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
 
     protected abstract fun onPassViewModel(): BaseViewModel<ViewState, ViewAction>
 
-    protected abstract fun onRender(viewState: ViewState)
+    protected abstract fun onStateReceived(viewState: ViewState)
 
 }

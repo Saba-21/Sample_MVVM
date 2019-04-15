@@ -4,12 +4,12 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.BehaviorSubject
 
 abstract class BaseViewModel<ViewState : BaseViewState, ViewAction : BaseViewAction> : ViewModel() {
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
-    private val stateFullSubject = PublishSubject.create<ViewState>()
+    private val stateFullSubject = BehaviorSubject.create<ViewState>()
     private val stateAwareSubject = MutableLiveData<ViewState>()
 
     fun getStateFullObservable() = stateFullSubject

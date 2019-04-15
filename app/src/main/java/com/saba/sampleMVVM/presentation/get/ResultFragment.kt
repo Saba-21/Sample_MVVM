@@ -17,7 +17,7 @@ class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(R.layout.
 
     override fun onPassViewModel() = viewModel
 
-    override fun onRender(viewState: ResultViewState) {
+    override fun onStateReceived(viewState: ResultViewState) {
         when (viewState) {
             is ResultViewState.DrawRepoList -> {
                 adapter.setData(viewState.repoList)

@@ -17,7 +17,7 @@ class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(R.layout.f
 
     override fun onPassViewModel() = viewModel
 
-    override fun onRender(viewState: AddingViewState) {
+    override fun onStateReceived(viewState: AddingViewState) {
         when (viewState) {
             is AddingViewState.DrawRepoList -> {
                 adapter.setData(viewState.repoList)

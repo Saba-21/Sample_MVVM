@@ -13,10 +13,14 @@ class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activi
     private val viewModel: MainViewModel by viewModel()
     override fun onPassViewModel() = viewModel
 
-    override fun onRender(viewState: MainViewState) {}
+    override fun onStateReceived(viewState: MainViewState) {
+
+    }
 
     override fun onDraw(savedInstanceState: Bundle?) {
         bindScope(getOrCreateScope(ACTIVITY))
+
+        postAction(MainViewAction.INIT)
     }
 
 }
