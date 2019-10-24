@@ -1,8 +1,12 @@
 package com.saba.sampleMVVM.base.presentation
 
 import android.arch.lifecycle.Observer
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
+import com.saba.sampleMVVM.presentation.main.MainViewState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -22,10 +26,6 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
         compositeDisposable = CompositeDisposable()
         viewActionSubject = PublishSubject.create()
 
-        baseViewModel.onSubscribeViewAction(viewActionSubject)
-
-        onDraw(savedInstanceState)
-
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
                 onStateReceived(viewState)
@@ -38,10 +38,16 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
             }
         )
 
-    }
+        compositeDisposable.add(
+            baseViewModel.getErrorStateObservable().filter { isViewResumed }.subscribe { errorState ->
+                onStateReceived(MainViewState.OnWarningReceived(errorState) as ViewState)
+            }
+        )
 
-    protected fun postAction(action: ViewAction) {
-        viewActionSubject.onNext(action)
+        baseViewModel.onSubscribeViewAction(viewActionSubject)
+
+        onDraw(savedInstanceState)
+
     }
 
     override fun onResume() {
@@ -54,11 +60,17 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
         super.onPause()
     }
 
+    protected fun postAction(action: ViewAction) {
+        if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork)
+            viewActionSubject.onNext(action)
+        else
+            onStateReceived(MainViewState.OnWarningReceived(WarningResponse.OFFLINE) as ViewState)
+    }
+
     override fun onDestroy() {
         compositeDisposable.dispose()
         compositeDisposable.clear()
-        if (isFinishing)
-            baseViewModel.getStateAwareObservable().removeObservers(this)
+        baseViewModel.getStateAwareObservable().removeObservers(this)
         super.onDestroy()
     }
 
@@ -67,5 +79,15 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     protected abstract fun onPassViewModel(): BaseViewModel<ViewState, ViewAction>
 
     protected abstract fun onStateReceived(viewState: ViewState)
+
+    protected fun checkNetwork(): Boolean? {
+        return try {
+            val connectivityManager =
+                getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            return connectivityManager.activeNetworkInfo?.isConnected ?: false
+        } catch (e: Exception) {
+            null
+        }
+    }
 
 }
