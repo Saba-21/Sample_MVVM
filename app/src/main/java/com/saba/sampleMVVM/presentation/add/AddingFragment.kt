@@ -3,10 +3,11 @@ package com.saba.sampleMVVM.presentation.add
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
-import android.widget.Toast
 import com.saba.sampleMVVM.R
 import com.saba.sampleMVVM.base.presentation.BaseFragment
 import com.saba.sampleMVVM.custom.adapters.RepoAdapter
+import com.saba.sampleMVVM.presentation.main.MainViewAction
+import com.saba.sampleMVVM.presentation.main.MainViewState
 import kotlinx.android.synthetic.main.fragment_adding.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -23,13 +24,13 @@ class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(R.layout.f
         rvGlobalRepos.layoutManager = LinearLayoutManager(context)
 
         adapter.setClickListener {
-            postAction(AddingViewActon.SaveClick(it))
+            postParentAction(MainViewAction.SaveClick(it))
         }
         butSearch.setOnClickListener {
-            postAction(AddingViewActon.SearchClick(tvUsername.text.toString()))
+            postAction(AddingViewActon.SearchRepos(tvUsername.text.toString()))
         }
         butDrawResult.setOnClickListener {
-            postAction(AddingViewActon.NavigateToResult)
+            postParentState(MainViewState.NavigateToResult)
         }
     }
 
@@ -37,12 +38,6 @@ class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(R.layout.f
         when (viewState) {
             is AddingViewState.DrawRepoList -> {
                 adapter.setData(viewState.repoList)
-            }
-            is AddingViewState.ShowItemAdded -> {
-                Toast.makeText(context!!, "item saved", Toast.LENGTH_SHORT).show()
-            }
-            is AddingViewState.NavigateToResult -> {
-                onNavigate(AddingFragmentDirections.actionAddingFragmentToResultFragment())
             }
         }
     }

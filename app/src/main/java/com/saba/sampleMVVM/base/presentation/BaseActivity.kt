@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
 import com.saba.sampleMVVM.presentation.main.MainViewState
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -33,14 +34,13 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
         })
 
         compositeDisposable.add(
-            baseViewModel.getStateFullObservable().filter { isViewResumed }.subscribe { viewState ->
+            Observable.merge(
+                baseViewModel.getStateFullObservable(),
+                baseViewModel.getParentStateObservable().map { it as ViewState }
+            ).filter {
+                isViewResumed
+            }.subscribe { viewState ->
                 onStateReceived(viewState)
-            }
-        )
-
-        compositeDisposable.add(
-            baseViewModel.getErrorStateObservable().filter { isViewResumed }.subscribe { errorState ->
-                onStateReceived(MainViewState.OnWarningReceived(errorState) as ViewState)
             }
         )
 
@@ -61,10 +61,14 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     }
 
     protected fun postAction(action: ViewAction) {
-        if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork)
+        if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork) {
             viewActionSubject.onNext(action)
-        else
+
+            if (action.needsLoader)
+                onStateReceived(MainViewState.ShowLoading as ViewState)
+        } else {
             onStateReceived(MainViewState.OnWarningReceived(WarningResponse.OFFLINE) as ViewState)
+        }
     }
 
     override fun onDestroy() {

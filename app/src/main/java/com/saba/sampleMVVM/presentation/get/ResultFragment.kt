@@ -3,10 +3,11 @@ package com.saba.sampleMVVM.presentation.get
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
-import android.widget.Toast
 import com.saba.sampleMVVM.R
 import com.saba.sampleMVVM.base.presentation.BaseFragment
 import com.saba.sampleMVVM.custom.adapters.RepoAdapter
+import com.saba.sampleMVVM.presentation.main.MainViewAction
+import com.saba.sampleMVVM.presentation.main.MainViewState
 import kotlinx.android.synthetic.main.fragment_result.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -25,10 +26,11 @@ class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(R.layout.
         postAction(ResultViewAction.LoadRepos)
 
         adapter.setClickListener {
-            postAction(ResultViewAction.DropClicked(it))
+            postParentAction(MainViewAction.DropClicked(it))
         }
+
         butDrawAdding.setOnClickListener {
-            postAction(ResultViewAction.NavigateToResult)
+            postParentState(MainViewState.NavigateToAdding)
         }
     }
 
@@ -36,12 +38,6 @@ class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(R.layout.
         when (viewState) {
             is ResultViewState.DrawRepoList -> {
                 adapter.setData(viewState.repoList)
-            }
-            is ResultViewState.ShowItemDropped -> {
-                Toast.makeText(context!!, "item dropped", Toast.LENGTH_SHORT).show()
-            }
-            is ResultViewState.NavigateToAdding -> {
-                activity?.onBackPressed()
             }
         }
     }

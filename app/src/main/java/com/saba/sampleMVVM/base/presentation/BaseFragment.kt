@@ -8,17 +8,13 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.NavController
-import androidx.navigation.NavDirections
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
+import com.saba.sampleMVVM.presentation.main.MainViewAction
 import com.saba.sampleMVVM.presentation.main.MainViewModel
 import com.saba.sampleMVVM.presentation.main.MainViewState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
-import org.koin.android.ext.android.get
-import org.koin.android.scope.ext.android.getScope
 import org.koin.android.viewmodel.ext.android.sharedViewModel
-import org.koin.core.parameter.parametersOf
 
 abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewAction>(private val layoutId: Int) :
     Fragment() {
@@ -26,7 +22,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
     private lateinit var baseViewModel: BaseViewModel<ViewState, ViewAction>
     private lateinit var compositeDisposable: CompositeDisposable
     private lateinit var viewActionSubject: PublishSubject<ViewAction>
-    private var navigationController: NavController? = null
     private val parentViewModel: MainViewModel by sharedViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,10 +31,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        navigationController = get(scope = getScope(ACTIVITY)) {
-            parametersOf(activity!!)
-        }
 
         baseViewModel = onPassViewModel()
         compositeDisposable = CompositeDisposable()
@@ -58,8 +49,8 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
         )
 
         compositeDisposable.add(
-            baseViewModel.getErrorStateObservable().filter { isResumed }.subscribe { errorState ->
-                postParentState(MainViewState.OnWarningReceived(errorState))
+            baseViewModel.getParentStateObservable().filter { isResumed }.subscribe { viewState ->
+                postParentState(viewState)
             }
         )
 
@@ -72,11 +63,26 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
         parentViewModel.postState(state)
     }
 
-    protected fun postAction(action: ViewAction) {
-        if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork)
-            viewActionSubject.onNext(action)
-        else
+    protected fun postParentAction(action: MainViewAction) {
+        if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork) {
+            parentViewModel.postAction(action)
+
+            if (action.needsLoader)
+                postParentState(MainViewState.ShowLoading)
+        } else {
             postParentState(MainViewState.OnWarningReceived(WarningResponse.OFFLINE))
+        }
+    }
+
+    protected fun postAction(action: ViewAction) {
+        if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork) {
+            viewActionSubject.onNext(action)
+
+            if (action.needsLoader)
+                postParentState(MainViewState.ShowLoading)
+        } else {
+            postParentState(MainViewState.OnWarningReceived(WarningResponse.OFFLINE))
+        }
     }
 
     override fun onDestroyView() {
@@ -89,10 +95,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
     override fun onDestroy() {
         baseViewModel.getStateAwareObservable().removeObservers(this)
         super.onDestroy()
-    }
-
-    protected fun onNavigate(navDirections: NavDirections) {
-        navigationController?.navigate(navDirections)
     }
 
     override fun onCreateView(

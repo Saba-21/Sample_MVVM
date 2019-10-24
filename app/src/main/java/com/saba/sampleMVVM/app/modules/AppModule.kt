@@ -1,10 +1,8 @@
 package com.saba.sampleMVVM.app.modules
 
 import android.arch.persistence.room.Room
-import androidx.navigation.Navigation
 import com.google.gson.GsonBuilder
 import com.saba.sampleMVVM.R
-import com.saba.sampleMVVM.base.presentation.ACTIVITY
 import com.saba.sampleMVVM.domain.providers.global.GlobalDataProvider
 import com.saba.sampleMVVM.domain.providers.local.LocalDataProvider
 import com.saba.sampleMVVM.domain.providers.local.LocalDataProviderImpl
@@ -71,10 +69,6 @@ object AppModule {
         }
         single {
             RepositoryImpl(get(), get()) as Repository
-        }
-
-        scope(ACTIVITY) {
-            Navigation.findNavController(it[0], R.id.mainNavHost)
         }
 
     }

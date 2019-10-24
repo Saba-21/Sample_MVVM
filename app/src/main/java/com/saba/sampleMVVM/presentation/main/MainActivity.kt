@@ -1,13 +1,15 @@
 package com.saba.sampleMVVM.presentation.main
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import com.saba.sampleMVVM.R
-import com.saba.sampleMVVM.base.presentation.ACTIVITY
 import com.saba.sampleMVVM.base.presentation.BaseActivity
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
-import org.koin.android.scope.ext.android.bindScope
-import org.koin.android.scope.ext.android.getOrCreateScope
+import com.saba.sampleMVVM.presentation.add.AddingFragmentDirections
+import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activity_main) {
@@ -15,10 +17,34 @@ class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activi
     private val viewModel: MainViewModel by viewModel()
     override fun onPassViewModel() = viewModel
 
+    private lateinit var navigationController: NavController
+
+    override fun onDraw(savedInstanceState: Bundle?) {
+        navigationController = Navigation.findNavController(this, R.id.mainNavHost)
+    }
+
     override fun onStateReceived(viewState: MainViewState) {
         when (viewState) {
             is MainViewState.OnWarningReceived -> {
                 onWarningReceived(viewState.warning)
+            }
+            is MainViewState.ShowItemDropped -> {
+                Toast.makeText(this, "item dropped", Toast.LENGTH_SHORT).show()
+            }
+            is MainViewState.ShowItemAdded -> {
+                Toast.makeText(this, "item saved", Toast.LENGTH_SHORT).show()
+            }
+            is MainViewState.NavigateToAdding -> {
+                this.onBackPressed()
+            }
+            is MainViewState.NavigateToResult -> {
+                navigationController.navigate(AddingFragmentDirections.actionAddingFragmentToResultFragment())
+            }
+            is MainViewState.ShowLoading -> {
+                loader.visibility = View.VISIBLE
+            }
+            is MainViewState.HideLoading -> {
+                loader.visibility = View.GONE
             }
         }
     }
@@ -41,10 +67,6 @@ class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activi
                 Toast.makeText(this, "poor_connection", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    override fun onDraw(savedInstanceState: Bundle?) {
-        bindScope(getOrCreateScope(ACTIVITY))
     }
 
 }

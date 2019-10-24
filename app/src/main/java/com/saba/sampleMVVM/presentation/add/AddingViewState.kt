@@ -6,7 +6,5 @@ import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
 sealed class AddingViewState(override val isStateAware: Boolean = false): BaseViewState {
 
     data class DrawRepoList(val repoList: List<RepoModel>, override val isStateAware: Boolean = true) : AddingViewState()
-    object ShowItemAdded: AddingViewState()
-    object NavigateToResult: AddingViewState()
 
 }
