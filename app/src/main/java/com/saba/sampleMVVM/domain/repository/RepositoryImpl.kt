@@ -1,6 +1,6 @@
 package com.saba.sampleMVVM.domain.repository
 
-import com.saba.sampleMVVM.base.extensions.async
+import com.saba.sampleMVVM.custom.extensions.async
 import com.saba.sampleMVVM.domain.providers.global.GlobalDataProvider
 import com.saba.sampleMVVM.domain.providers.local.LocalDataProvider
 import com.saba.sampleMVVM.domain.models.apiModels.RepoModel

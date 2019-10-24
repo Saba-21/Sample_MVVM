@@ -1,9 +1,8 @@
 package com.saba.sampleMVVM.presentation.main
 
-import com.saba.sampleMVVM.base.structure.BaseViewAction
+import com.saba.sampleMVVM.base.presentation.BaseViewAction
 
-sealed class MainViewAction : BaseViewAction{
-
-    object INIT: MainViewAction()
-
-}
+sealed class MainViewAction(
+    override val needsNetwork: Boolean = false,
+    override val needsLoader: Boolean = false
+) : BaseViewAction

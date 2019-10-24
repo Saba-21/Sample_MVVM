@@ -1,4 +1,4 @@
-package com.saba.sampleMVVM.base.structure
+package com.saba.sampleMVVM.base.presentation
 
 interface BaseViewState {
 

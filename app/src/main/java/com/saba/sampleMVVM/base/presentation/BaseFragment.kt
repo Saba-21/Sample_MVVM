@@ -1,4 +1,4 @@
-package com.saba.sampleMVVM.base.structure
+package com.saba.sampleMVVM.base.presentation
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle

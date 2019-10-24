@@ -1,8 +1,5 @@
-package com.saba.sampleMVVM.base.extensions
+package com.saba.sampleMVVM.custom.extensions
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.LiveDataReactiveStreams
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -20,9 +17,3 @@ fun <T> Observable<T>.async():
         Observable<T> = this
     .subscribeOn(Schedulers.newThread())
     .observeOn(AndroidSchedulers.mainThread())
-
-fun <T> Observable<T>.toLiveData():
-        LiveData<T> = LiveDataReactiveStreams
-    .fromPublisher(
-        this.toFlowable(BackpressureStrategy.LATEST)
-    )

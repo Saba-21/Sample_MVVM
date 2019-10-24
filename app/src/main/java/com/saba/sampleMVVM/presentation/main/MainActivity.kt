@@ -2,8 +2,8 @@ package com.saba.sampleMVVM.presentation.main
 
 import android.os.Bundle
 import com.saba.sampleMVVM.R
-import com.saba.sampleMVVM.base.structure.ACTIVITY
-import com.saba.sampleMVVM.base.structure.BaseActivity
+import com.saba.sampleMVVM.base.presentation.ACTIVITY
+import com.saba.sampleMVVM.base.presentation.BaseActivity
 import org.koin.android.scope.ext.android.bindScope
 import org.koin.android.scope.ext.android.getOrCreateScope
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -19,8 +19,6 @@ class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activi
 
     override fun onDraw(savedInstanceState: Bundle?) {
         bindScope(getOrCreateScope(ACTIVITY))
-
-        postAction(MainViewAction.INIT)
     }
 
 }

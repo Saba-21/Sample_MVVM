@@ -1,4 +1,4 @@
-package com.saba.sampleMVVM.base.useCase
+package com.saba.sampleMVVM.base.domain
 
 import com.saba.sampleMVVM.domain.repository.Repository
 import io.reactivex.Observable
