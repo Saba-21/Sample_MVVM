@@ -19,9 +19,6 @@ object UseCaseModule {
         factory {
             SaveLocalRepoUseCase(get())
         }
-        factory {
-            SelectUserWithReposUseCase(get())
-        }
         
     }
     

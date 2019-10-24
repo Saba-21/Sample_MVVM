@@ -3,7 +3,6 @@ package com.saba.sampleMVVM.domain.providers.local
 import com.saba.sampleMVVM.domain.database.RepoDatabase
 import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
 import com.saba.sampleMVVM.custom.helper.Converter
-import com.saba.sampleMVVM.domain.models.dbModels.UserWithRepos
 import io.reactivex.Observable
 
 class LocalDataProviderImpl(private val repoDb: RepoDatabase): LocalDataProvider {
@@ -30,8 +29,5 @@ class LocalDataProviderImpl(private val repoDb: RepoDatabase): LocalDataProvider
         repoDb.repoDao().save(Converter().toRepoDbModel(repoModel))
         return repoModel
     }
-
-    override fun selectOwnerWithRepos():
-            Observable<List<UserWithRepos>> = repoDb.ownerDao().selectOwnerWithRepos().toObservable()
 
 }

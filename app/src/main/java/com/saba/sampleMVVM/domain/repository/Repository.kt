@@ -1,7 +1,6 @@
 package com.saba.sampleMVVM.domain.repository
 
 import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
-import com.saba.sampleMVVM.domain.models.dbModels.UserWithRepos
 import io.reactivex.Observable
 
 interface Repository {
@@ -13,7 +12,5 @@ interface Repository {
     fun dropLocalRepos(repoModel: RepoModel): Observable<RepoModel>
 
     fun saveLocalRepo(repoModel: RepoModel): Observable<RepoModel>
-
-    fun selectOwnerWithRepos(): Observable<List<UserWithRepos>>
 
 }
