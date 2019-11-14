@@ -7,10 +7,7 @@ sealed class AddingViewActon(
     override val needsLoader: Boolean = false
 ) : BaseViewAction {
 
-    data class SearchRepos(
-        val key: String,
-        override val needsNetwork: Boolean = true,
-        override val needsLoader: Boolean = true
-    ) : AddingViewActon()
+    data class SearchRepos(val key: String) :
+        AddingViewActon(needsNetwork = true, needsLoader = true)
 
 }
