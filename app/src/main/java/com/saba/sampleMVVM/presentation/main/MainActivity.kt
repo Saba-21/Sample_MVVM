@@ -10,12 +10,8 @@ import com.saba.sampleMVVM.base.presentation.BaseActivity
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
 import com.saba.sampleMVVM.presentation.add.AddingFragmentDirections
 import kotlinx.android.synthetic.main.activity_main.*
-import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activity_main) {
-
-    private val viewModel: MainViewModel by viewModel()
-    override fun onPassViewModel() = viewModel
+class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activity_main, MainViewModel::class) {
 
     private lateinit var navigationController: NavController
 

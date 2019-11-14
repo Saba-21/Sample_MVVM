@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,14 +16,18 @@ import com.saba.sampleMVVM.presentation.main.MainViewState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.android.viewmodel.ext.android.viewModelByClass
+import kotlin.reflect.KClass
 
-abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewAction>(private val layoutId: Int) :
-    Fragment() {
+abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewAction>(
+    @LayoutRes private val layoutId: Int,
+    viewModelClass: KClass<out BaseViewModel<ViewState, ViewAction>>
+) : Fragment() {
 
-    private lateinit var baseViewModel: BaseViewModel<ViewState, ViewAction>
     private lateinit var compositeDisposable: CompositeDisposable
     private lateinit var viewActionSubject: PublishSubject<ViewAction>
     private val parentViewModel: MainViewModel by sharedViewModel()
+    private val baseViewModel by viewModelByClass(viewModelClass)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +37,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        baseViewModel = onPassViewModel()
         compositeDisposable = CompositeDisposable()
         viewActionSubject = PublishSubject.create()
 
@@ -106,8 +110,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
     }
 
     protected abstract fun onDraw(view: View?, savedInstanceState: Bundle?)
-
-    protected abstract fun onPassViewModel(): BaseViewModel<ViewState, ViewAction>
 
     protected abstract fun onStateReceived(viewState: ViewState)
 

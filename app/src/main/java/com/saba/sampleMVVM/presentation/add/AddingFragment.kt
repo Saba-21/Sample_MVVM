@@ -9,12 +9,11 @@ import com.saba.sampleMVVM.custom.adapters.RepoAdapter
 import com.saba.sampleMVVM.presentation.main.MainViewAction
 import com.saba.sampleMVVM.presentation.main.MainViewState
 import kotlinx.android.synthetic.main.fragment_adding.*
-import org.koin.android.viewmodel.ext.android.viewModel
 
-class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(R.layout.fragment_adding) {
-
-    private val viewModel: AddingViewModel by viewModel()
-    override fun onPassViewModel() = viewModel
+class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(
+    R.layout.fragment_adding,
+    AddingViewModel::class
+) {
 
     private lateinit var adapter: RepoAdapter
 

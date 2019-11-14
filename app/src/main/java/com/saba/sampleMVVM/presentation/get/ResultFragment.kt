@@ -9,12 +9,11 @@ import com.saba.sampleMVVM.custom.adapters.RepoAdapter
 import com.saba.sampleMVVM.presentation.main.MainViewAction
 import com.saba.sampleMVVM.presentation.main.MainViewState
 import kotlinx.android.synthetic.main.fragment_result.*
-import org.koin.android.viewmodel.ext.android.viewModel
 
-class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(R.layout.fragment_result) {
-
-    private val viewModel: ResultViewModel by viewModel()
-    override fun onPassViewModel() = viewModel
+class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(
+    R.layout.fragment_result,
+    ResultViewModel::class
+) {
 
     private lateinit var adapter: RepoAdapter
 

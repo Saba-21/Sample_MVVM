@@ -4,26 +4,31 @@ import android.arch.lifecycle.Observer
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.v7.app.AppCompatActivity
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
 import com.saba.sampleMVVM.presentation.main.MainViewState
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import org.koin.android.viewmodel.ext.android.viewModelByClass
+import kotlin.reflect.KClass
 
-abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewAction>(private val layoutId: Int) :
+abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewAction>(
+    @LayoutRes private val layoutId: Int,
+    viewModelClass: KClass<out BaseViewModel<ViewState, ViewAction>>
+) :
     AppCompatActivity() {
 
-    private lateinit var baseViewModel: BaseViewModel<ViewState, ViewAction>
     private lateinit var compositeDisposable: CompositeDisposable
     private lateinit var viewActionSubject: PublishSubject<ViewAction>
     private var isViewResumed = false
+    private val baseViewModel by viewModelByClass(viewModelClass)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layoutId)
 
-        baseViewModel = onPassViewModel()
         compositeDisposable = CompositeDisposable()
         viewActionSubject = PublishSubject.create()
 
@@ -79,8 +84,6 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     }
 
     protected abstract fun onDraw(savedInstanceState: Bundle?)
-
-    protected abstract fun onPassViewModel(): BaseViewModel<ViewState, ViewAction>
 
     protected abstract fun onStateReceived(viewState: ViewState)
 
