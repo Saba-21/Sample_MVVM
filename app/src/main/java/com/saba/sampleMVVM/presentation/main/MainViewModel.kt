@@ -10,21 +10,13 @@ class MainViewModel(
     private val dropLocalReposUseCase: DropLocalReposUseCase
 ) : BaseViewModel<MainViewState, MainViewAction>() {
 
-    override fun onActionReceived(action: MainViewAction): Observable<MainViewState> {
+    override fun onActionReceived(action: MainViewAction): MainViewState {
         return when (action) {
             is MainViewAction.DropClicked -> {
-                dropLocalReposUseCase
-                    .createObservable(action.repoModel)
-                    .map {
-                        MainViewState.ShowItemDropped
-                    }
+                MainViewState.ShowItemDropped
             }
             is MainViewAction.SaveClick -> {
-                saveLocalRepoUseCase
-                    .createObservable(action.repoModel)
-                    .map {
-                        MainViewState.ShowItemAdded
-                    }
+                MainViewState.ShowItemAdded
             }
         }
     }

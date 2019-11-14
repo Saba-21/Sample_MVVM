@@ -8,14 +8,10 @@ class AddingViewModel(
     private val getGlobalReposUseCase: GetGlobalReposUseCase
 ) : BaseViewModel<AddingViewState, AddingViewActon>() {
 
-    override fun onActionReceived(action: AddingViewActon): Observable<AddingViewState> {
+    override fun onActionReceived(action: AddingViewActon): AddingViewState {
         return when (action) {
             is AddingViewActon.SearchRepos -> {
-                getGlobalReposUseCase
-                    .createObservable(action.key)
-                    .map {
-                        AddingViewState.DrawRepoList(it)
-                    }
+                AddingViewState.DrawRepoList(emptyList())
             }
         }
     }

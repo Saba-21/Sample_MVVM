@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.saba.sampleMVVM.R
 import com.saba.sampleMVVM.base.presentation.BaseFragment
+import com.saba.sampleMVVM.base.presentation.eventHandling.logName
 import com.saba.sampleMVVM.custom.adapters.RepoAdapter
 import com.saba.sampleMVVM.presentation.main.MainViewAction
 import com.saba.sampleMVVM.presentation.main.MainViewState
@@ -34,6 +35,7 @@ class AddingFragment : BaseFragment<AddingViewState, AddingViewActon>(
     }
 
     override fun onStateReceived(viewState: AddingViewState) {
+        viewState.logName()
         when (viewState) {
             is AddingViewState.DrawRepoList -> {
                 adapter.setData(viewState.repoList)

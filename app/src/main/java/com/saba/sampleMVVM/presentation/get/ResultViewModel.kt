@@ -8,14 +8,10 @@ class ResultViewModel(
     private val getLocalReposUseCase: GetLocalReposUseCase
 ) : BaseViewModel<ResultViewState, ResultViewAction>() {
 
-    override fun onActionReceived(action: ResultViewAction): Observable<ResultViewState> {
+    override fun onActionReceived(action: ResultViewAction): ResultViewState {
         return when (action) {
             is ResultViewAction.LoadRepos -> {
-                getLocalReposUseCase
-                    .createObservable()
-                    .map {
-                        ResultViewState.DrawRepoList(it)
-                    }
+                ResultViewState.DrawRepoList(emptyList())
             }
         }
     }

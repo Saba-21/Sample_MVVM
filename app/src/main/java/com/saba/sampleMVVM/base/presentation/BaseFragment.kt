@@ -14,7 +14,6 @@ import com.saba.sampleMVVM.presentation.main.MainViewAction
 import com.saba.sampleMVVM.presentation.main.MainViewModel
 import com.saba.sampleMVVM.presentation.main.MainViewState
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModelByClass
 import kotlin.reflect.KClass
@@ -25,7 +24,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
 ) : Fragment() {
 
     private lateinit var compositeDisposable: CompositeDisposable
-    private lateinit var viewActionSubject: PublishSubject<ViewAction>
     private val parentViewModel: MainViewModel by sharedViewModel()
     private val baseViewModel by viewModelByClass(viewModelClass)
 
@@ -38,7 +36,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
         super.onViewCreated(view, savedInstanceState)
 
         compositeDisposable = CompositeDisposable()
-        viewActionSubject = PublishSubject.create()
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -58,8 +55,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
             }
         )
 
-        baseViewModel.onSubscribeViewAction(viewActionSubject)
-
         onDraw(view, savedInstanceState)
     }
 
@@ -69,10 +64,12 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
 
     protected fun postParentAction(action: MainViewAction) {
         if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork) {
-            parentViewModel.postAction(action)
 
             if (action.needsLoader)
                 postParentState(MainViewState.ShowLoading)
+
+            parentViewModel.onSubscribeViewAction(action)
+
         } else {
             postParentState(MainViewState.OnWarningReceived(WarningResponse.OFFLINE))
         }
@@ -80,10 +77,12 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
 
     protected fun postAction(action: ViewAction) {
         if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork) {
-            viewActionSubject.onNext(action)
 
             if (action.needsLoader)
                 postParentState(MainViewState.ShowLoading)
+
+            baseViewModel.onSubscribeViewAction(action)
+
         } else {
             postParentState(MainViewState.OnWarningReceived(WarningResponse.OFFLINE))
         }

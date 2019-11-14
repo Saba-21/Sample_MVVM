@@ -1,5 +1,6 @@
 package com.saba.sampleMVVM.base.presentation.eventHandling
 
+import android.util.Log
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -26,4 +27,8 @@ fun Throwable.handleEvent(callback: (WarningResponse) -> Unit) {
         }
     }
     callback.invoke(errorResponse)
+}
+
+fun Any.logName() {
+    Log.e("name", this.javaClass.simpleName)
 }

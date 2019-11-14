@@ -8,10 +8,12 @@ import androidx.navigation.Navigation
 import com.saba.sampleMVVM.R
 import com.saba.sampleMVVM.base.presentation.BaseActivity
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
+import com.saba.sampleMVVM.base.presentation.eventHandling.logName
 import com.saba.sampleMVVM.presentation.add.AddingFragmentDirections
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activity_main, MainViewModel::class) {
+class MainActivity :
+    BaseActivity<MainViewState, MainViewAction>(R.layout.activity_main, MainViewModel::class) {
 
     private lateinit var navigationController: NavController
 
@@ -20,6 +22,7 @@ class MainActivity : BaseActivity<MainViewState, MainViewAction>(R.layout.activi
     }
 
     override fun onStateReceived(viewState: MainViewState) {
+        viewState.logName()
         when (viewState) {
             is MainViewState.OnWarningReceived -> {
                 onWarningReceived(viewState.warning)

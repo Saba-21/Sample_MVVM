@@ -10,7 +10,6 @@ import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
 import com.saba.sampleMVVM.presentation.main.MainViewState
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import org.koin.android.viewmodel.ext.android.viewModelByClass
 import kotlin.reflect.KClass
 
@@ -21,7 +20,6 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     AppCompatActivity() {
 
     private lateinit var compositeDisposable: CompositeDisposable
-    private lateinit var viewActionSubject: PublishSubject<ViewAction>
     private var isViewResumed = false
     private val baseViewModel by viewModelByClass(viewModelClass)
 
@@ -30,7 +28,6 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
         setContentView(layoutId)
 
         compositeDisposable = CompositeDisposable()
-        viewActionSubject = PublishSubject.create()
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -49,28 +46,18 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
             }
         )
 
-        baseViewModel.onSubscribeViewAction(viewActionSubject)
-
         onDraw(savedInstanceState)
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        isViewResumed = true
-    }
-
-    override fun onPause() {
-        isViewResumed = false
-        super.onPause()
-    }
-
     protected fun postAction(action: ViewAction) {
         if ((action.needsNetwork && checkNetwork() != false) || !action.needsNetwork) {
-            viewActionSubject.onNext(action)
 
             if (action.needsLoader)
                 onStateReceived(MainViewState.ShowLoading as ViewState)
+
+            baseViewModel.onSubscribeViewAction(action)
+
         } else {
             onStateReceived(MainViewState.OnWarningReceived(WarningResponse.OFFLINE) as ViewState)
         }
@@ -86,6 +73,16 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     protected abstract fun onDraw(savedInstanceState: Bundle?)
 
     protected abstract fun onStateReceived(viewState: ViewState)
+
+    override fun onResume() {
+        super.onResume()
+        isViewResumed = true
+    }
+
+    override fun onPause() {
+        isViewResumed = false
+        super.onPause()
+    }
 
     protected fun checkNetwork(): Boolean? {
         return try {
