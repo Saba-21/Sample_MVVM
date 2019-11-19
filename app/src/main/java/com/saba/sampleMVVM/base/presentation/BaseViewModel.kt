@@ -1,17 +1,21 @@
 package com.saba.sampleMVVM.base.presentation
 
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.saba.sampleMVVM.base.presentation.eventHandling.handleEvent
+import com.saba.sampleMVVM.custom.liveData.SingleLiveEvent
 import com.saba.sampleMVVM.presentation.main.MainViewState
-import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 abstract class BaseViewModel<ViewState : BaseViewState, ViewAction : BaseViewAction> : ViewModel() {
 
-    private val stateFullSubject = BehaviorSubject.create<ViewState>()
     private val stateAwareSubject = MutableLiveData<ViewState>()
-    private val parentStateSubject = BehaviorSubject.create<MainViewState>()
+    private val stateFullSubject = SingleLiveEvent<ViewState>()
+    private val parentStateSubject = SingleLiveEvent<MainViewState>()
 
     fun getStateFullObservable() = stateFullSubject
     fun getStateAwareObservable() = stateAwareSubject
@@ -21,23 +25,28 @@ abstract class BaseViewModel<ViewState : BaseViewState, ViewAction : BaseViewAct
         if (viewState.isStateAware)
             stateAwareSubject.postValue(viewState)
         else
-            stateFullSubject.onNext(viewState)
+            stateFullSubject.postValue(viewState)
     }
 
     fun onSubscribeViewAction(viewAction: ViewAction) {
-        try {
-            val state = onActionReceived(viewAction)
-            postState(state)
-        } catch (e: Exception) {
-            e.handleEvent {
-                parentStateSubject.onNext(MainViewState.OnWarningReceived(it))
+        viewModelScope.launch {
+            try {
+                var viewState: ViewState? = null
+                withContext(Dispatchers.IO) {
+                    viewState = onActionReceived(viewAction)
+                }
+                postState(viewState!!)
+            } catch (e: Exception) {
+                e.handleEvent {
+                    parentStateSubject.postValue(MainViewState.OnWarningReceived(it))
+                }
+            } finally {
+                if (viewAction.needsLoader)
+                    parentStateSubject.postValue(MainViewState.HideLoading)
             }
-        } finally {
-            if (viewAction.needsLoader)
-                parentStateSubject.onNext(MainViewState.HideLoading)
         }
     }
 
-    abstract fun onActionReceived(action: ViewAction): ViewState
+    abstract suspend fun onActionReceived(action: ViewAction): ViewState
 
 }

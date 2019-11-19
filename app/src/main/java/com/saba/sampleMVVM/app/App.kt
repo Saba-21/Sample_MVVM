@@ -5,14 +5,19 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import com.saba.sampleMVVM.app.modules.AppModule
 import com.saba.sampleMVVM.app.modules.UseCaseModule
 import com.saba.sampleMVVM.app.modules.ViewModelModule
-import org.koin.android.ext.android.startKoin
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
+@Suppress("unused")
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
         Fresco.initialize(this)
-        startKoin(this, modules = listOf(AppModule.module, UseCaseModule.module, ViewModelModule.module))
+        startKoin {
+            androidContext(this@App)
+            modules(listOf(AppModule.module, UseCaseModule.module, ViewModelModule.module))
+        }
     }
 
 }

@@ -1,26 +1,31 @@
 package com.saba.sampleMVVM.domain.repository
 
-import com.saba.sampleMVVM.custom.extensions.async
+import androidx.lifecycle.LiveData
 import com.saba.sampleMVVM.domain.providers.global.GlobalDataProvider
-import com.saba.sampleMVVM.domain.providers.local.LocalDataProvider
-import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
-import io.reactivex.Observable
+import com.saba.sampleMVVM.domain.models.RepoModel
+import com.saba.sampleMVVM.domain.providers.local.RepoDatabase
 
 class RepositoryImpl(
     private val globalDataProvider: GlobalDataProvider,
-    private val localDataProvider: LocalDataProvider
+    private val database: RepoDatabase
 ) : Repository {
 
-    override fun saveLocalRepo(repoModel: RepoModel):
-            Observable<RepoModel> = localDataProvider.save(repoModel).async()
+    override suspend fun getLocalRepos(): LiveData<List<RepoModel>> {
+        return database.repoDao().select()
+    }
 
-    override fun dropLocalRepos(repoModel: RepoModel):
-            Observable<RepoModel> = localDataProvider.drop(repoModel).async()
+    override suspend fun dropLocalRepos(repoModel: RepoModel): Boolean {
+        database.repoDao().delete(repoModel)
+        return true
+    }
 
-    override fun getLocalRepos():
-            Observable<List<RepoModel>> = localDataProvider.select().async()
+    override suspend fun saveLocalRepo(repoModel: RepoModel): Boolean {
+        database.repoDao().save(repoModel)
+        return true
+    }
 
-    override fun getGlobalRepos(userName: String):
-            Observable<List<RepoModel>> = globalDataProvider.getStarredRepos(userName).toObservable().async()
+    override suspend fun getGlobalRepos(userName: String): List<RepoModel> {
+        return globalDataProvider.getStarredRepos(userName)
+    }
 
 }

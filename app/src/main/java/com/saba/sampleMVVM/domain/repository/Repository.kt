@@ -1,16 +1,16 @@
 package com.saba.sampleMVVM.domain.repository
 
-import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
-import io.reactivex.Observable
+import androidx.lifecycle.LiveData
+import com.saba.sampleMVVM.domain.models.RepoModel
 
 interface Repository {
 
-    fun getGlobalRepos(userName: String): Observable<List<RepoModel>>
+    suspend fun getGlobalRepos(userName: String): List<RepoModel>
 
-    fun getLocalRepos(): Observable<List<RepoModel>>
+    suspend fun getLocalRepos(): LiveData<List<RepoModel>>
 
-    fun dropLocalRepos(repoModel: RepoModel): Observable<RepoModel>
+    suspend fun dropLocalRepos(repoModel: RepoModel): Boolean
 
-    fun saveLocalRepo(repoModel: RepoModel): Observable<RepoModel>
+    suspend fun saveLocalRepo(repoModel: RepoModel): Boolean
 
 }

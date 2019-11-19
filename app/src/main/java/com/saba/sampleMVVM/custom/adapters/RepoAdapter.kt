@@ -1,14 +1,13 @@
 package com.saba.sampleMVVM.custom.adapters
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.saba.sampleMVVM.R
-import com.saba.sampleMVVM.domain.models.apiModels.RepoModel
+import com.saba.sampleMVVM.domain.models.RepoModel
 import kotlinx.android.synthetic.main.repo_item.view.*
 
-class RepoAdapter : RecyclerView.Adapter<RepoAdapter.RepoViewHolder>() {
+class RepoAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<RepoAdapter.RepoViewHolder>() {
 
     private var repoList = emptyList<RepoModel>()
 
@@ -36,7 +35,7 @@ class RepoAdapter : RecyclerView.Adapter<RepoAdapter.RepoViewHolder>() {
 
     override fun getItemCount(): Int = repoList.size
 
-    inner class RepoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class RepoViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
 
         fun bind(repo: RepoModel, itemClickListener: ((RepoModel) -> Unit)?) {
             itemView.tvListUser.text = repo.owner.login

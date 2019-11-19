@@ -1,8 +1,9 @@
 package com.saba.sampleMVVM.presentation.get
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.View
+import androidx.lifecycle.Observer
 import com.saba.sampleMVVM.R
 import com.saba.sampleMVVM.base.presentation.BaseFragment
 import com.saba.sampleMVVM.base.presentation.eventHandling.logName
@@ -38,7 +39,9 @@ class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(
         viewState.logName()
         when (viewState) {
             is ResultViewState.DrawRepoList -> {
-                adapter.setData(viewState.repoList)
+                viewState.repoList.observe(viewLifecycleOwner, Observer {
+                    adapter.setData(it)
+                })
             }
         }
     }

@@ -1,16 +1,14 @@
 package com.saba.sampleMVVM.base.presentation
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
 import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
 import com.saba.sampleMVVM.presentation.main.MainViewState
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import org.koin.android.viewmodel.ext.android.viewModelByClass
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.reflect.KClass
 
 abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewAction>(
@@ -19,15 +17,12 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
 ) :
     AppCompatActivity() {
 
-    private lateinit var compositeDisposable: CompositeDisposable
     private var isViewResumed = false
-    private val baseViewModel by viewModelByClass(viewModelClass)
+    private val baseViewModel by viewModel(viewModelClass)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layoutId)
-
-        compositeDisposable = CompositeDisposable()
 
         baseViewModel.getStateAwareObservable().observe(this, Observer {
             it?.let { viewState ->
@@ -35,16 +30,17 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
             }
         })
 
-        compositeDisposable.add(
-            Observable.merge(
-                baseViewModel.getStateFullObservable(),
-                baseViewModel.getParentStateObservable().map { it as ViewState }
-            ).filter {
-                isViewResumed
-            }.subscribe { viewState ->
+        baseViewModel.getStateFullObservable().observe(this, Observer {
+            it?.let { viewState ->
                 onStateReceived(viewState)
             }
-        )
+        })
+
+        baseViewModel.getParentStateObservable().observe(this, Observer {
+            it?.let { viewState ->
+                onStateReceived(viewState as ViewState)
+            }
+        })
 
         onDraw(savedInstanceState)
 
@@ -64,8 +60,6 @@ abstract class BaseActivity<ViewState : BaseViewState, ViewAction : BaseViewActi
     }
 
     override fun onDestroy() {
-        compositeDisposable.dispose()
-        compositeDisposable.clear()
         baseViewModel.getStateAwareObservable().removeObservers(this)
         super.onDestroy()
     }

@@ -1,4 +1,4 @@
-package com.saba.sampleMVVM.domain.models.apiModels
+package com.saba.sampleMVVM.domain.models
 
 import com.google.gson.annotations.SerializedName
 

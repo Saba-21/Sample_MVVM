@@ -1,11 +1,10 @@
 package com.saba.sampleMVVM.base.presentation
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.v4.app.Fragment
+import androidx.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,19 +12,17 @@ import com.saba.sampleMVVM.base.presentation.eventHandling.WarningResponse
 import com.saba.sampleMVVM.presentation.main.MainViewAction
 import com.saba.sampleMVVM.presentation.main.MainViewModel
 import com.saba.sampleMVVM.presentation.main.MainViewState
-import io.reactivex.disposables.CompositeDisposable
-import org.koin.android.viewmodel.ext.android.sharedViewModel
-import org.koin.android.viewmodel.ext.android.viewModelByClass
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.reflect.KClass
 
 abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewAction>(
     @LayoutRes private val layoutId: Int,
     viewModelClass: KClass<out BaseViewModel<ViewState, ViewAction>>
-) : Fragment() {
+) : androidx.fragment.app.Fragment() {
 
-    private lateinit var compositeDisposable: CompositeDisposable
     private val parentViewModel: MainViewModel by sharedViewModel()
-    private val baseViewModel by viewModelByClass(viewModelClass)
+    private val baseViewModel by viewModel(viewModelClass)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,26 +32,23 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        compositeDisposable = CompositeDisposable()
-
-        baseViewModel.getStateAwareObservable().observe(this, Observer {
+        baseViewModel.getStateAwareObservable().observe(viewLifecycleOwner, Observer {
             it?.let { viewState ->
                 onStateReceived(viewState)
             }
         })
 
-        compositeDisposable.add(
-            baseViewModel.getStateFullObservable().filter { isResumed }.subscribe { viewState ->
+        baseViewModel.getStateFullObservable().observe(viewLifecycleOwner, Observer {
+            it?.let { viewState ->
                 onStateReceived(viewState)
             }
-        )
+        })
 
-        compositeDisposable.add(
-            baseViewModel.getParentStateObservable().filter { isResumed }.subscribe { viewState ->
+        baseViewModel.getParentStateObservable().observe(viewLifecycleOwner, Observer {
+            it?.let { viewState ->
                 postParentState(viewState)
             }
-        )
-
+        })
         onDraw(view, savedInstanceState)
     }
 
@@ -86,13 +80,6 @@ abstract class BaseFragment<ViewState : BaseViewState, ViewAction : BaseViewActi
         } else {
             postParentState(MainViewState.OnWarningReceived(WarningResponse.OFFLINE))
         }
-    }
-
-    override fun onDestroyView() {
-        compositeDisposable.dispose()
-        compositeDisposable.clear()
-        baseViewModel.getStateAwareObservable().removeObservers(this)
-        super.onDestroyView()
     }
 
     override fun onDestroy() {
