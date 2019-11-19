@@ -39,9 +39,7 @@ class ResultFragment : BaseFragment<ResultViewState, ResultViewAction>(
         viewState.logName()
         when (viewState) {
             is ResultViewState.DrawRepoList -> {
-                viewState.repoList.observe(viewLifecycleOwner, Observer {
-                    adapter.setData(it)
-                })
+                adapter.setData(viewState.repoList)
             }
         }
     }
